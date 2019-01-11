@@ -14,7 +14,7 @@ minibuffer is activated for filtering.
 
 ** Keys:
 | =return=  | Select the highlighted item and exit.                                                                                                 |
-| =M-up=    | Activate the window with the list, to resize it, copy text, etc. Once there, use *M-down* to get back to the minibuffer.              |
+| =M-up=    | Activate the window with the list, to resize it, copy text, etc. Once there, use =M-down= or =C-g= to get back to the minibuffer.              |
 | =C-+=     | Cycle filter types. Types available are: prefix/substring/flex, prefix/substring (flex may be slow on huge lists), and regexp.          |
 | =M-+=     | Toggle numbering of list elements.                                                                                                    |
 | =up=      | Move selection up.                                                                                                                    |
@@ -27,3 +27,14 @@ minibuffer is activated for filtering.
 | =S-up=    | Decrease the number of visible elements.                                                                                              |
 | =C-c C-c= | Pushes the current filter to the filter stack. The filtered list becomes the default list. The filter stack is shown in the modeline. |
 | =C-c C-v= | Pops one element from the filter stack.                                                                                               |
+
+
+
+** Next:
+- Some documentation.
+- Popup version.
+- Commands to degrade to ido, completing read.
+- A command to take the entire frame.
+- When selecting the listing window, allow to make a choice from there too.
+- Item categories, by prefix or explicit. Allow to filter out categories.
+- When flex matching, if the first character of the filter is also the first character of the item, show that item before items with substring (not prefix) matching.
