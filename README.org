@@ -15,7 +15,7 @@ minibuffer is activated for filtering.
 ** Keys:
 | =return=  | Select the highlighted item and exit.                                                                                                 |
 | =M-up=    | Activate the window with the list, to resize it, copy text, etc. Once there, use *M-down* to get back to the minibuffer.              |
-| =C-+=     | Cycle filter types. Types avaiable are: prefix/substring/flex, prefix/substring (flex maybe slow on huge lists), and regexp.          |
+| =C-+=     | Cycle filter types. Types available are: prefix/substring/flex, prefix/substring (flex may be slow on huge lists), and regexp.          |
 | =M-+=     | Toggle numbering of list elements.                                                                                                    |
 | =up=      | Move selection up.                                                                                                                    |
 | =down=    | Move selection down.                                                                                                                  |
