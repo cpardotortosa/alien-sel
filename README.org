@@ -43,3 +43,4 @@ minibuffer is activated for filtering.
 - When selecting the listing window, allow to make a choice from there too.
 - Item categories, by prefix or explicit. Allow to filter out categories.
 - When flex matching, if the first character of the filter is also the first character of the item, show that item before items with substring (not prefix) matching.
+- tab completion, initial input.
