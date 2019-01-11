@@ -4,6 +4,8 @@
 Call *alien-sel* with a prompt and a list of choices, and a vertical list is shown for choosing with arrow keys. The
 minibuffer is activated for filtering.
 
+[[screenshot.png]]
+
 ** Features:
 
 - Filter options by typing in the minibuffer. Substring/regexp/'flex' matching available.
