@@ -30,8 +30,8 @@ minibuffer is activated for filtering.
 | =end=     | Move selection to the last element.                                                                                                   |
 | =S-down=  | Increase the number of visible elements.                                                                                              |
 | =S-up=    | Decrease the number of visible elements.                                                                                              |
-| =C-c C-c= | Pushes the current filter to the filter stack. The filtered list becomes the default list. The filter stack is shown in the modeline. |
-| =C-c C-v= | Pops one element from the filter stack. |
+| =C-return= | Pushes the current filter to the filter stack. The filtered list becomes the default list. The filter stack is shown in the modeline. |
+| =M-return= | Pops one element from the filter stack. |
 | =C-c 1= | Deletes all other windows, so the list window takes the whole frame. |
 
 
