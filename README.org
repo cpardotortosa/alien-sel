@@ -1,0 +1,27 @@
+
+* alien-sel: A list choice library for emacs.
+
+Call *alien-sel* with a prompt and a list of choices, and a vertical list is shown for choosing with arrow keys. The
+minibuffer is activated for filtering.
+
+** Features:
+
+- Filter options by typing in the minibuffer. Substring/regexp/'flex' matching available.
+- Push filters to narrow selection.
+
+
+** Keys:
+| =return=  | Select the highlighted item and exit.                                                                                                 |
+| =M-up=    | Activate the window with the list, to resize it, copy text, etc. Once there, use *M-down* to get back to the minibuffer.              |
+| =C-+=     | Cycle filter types. Types avaiable are: prefix/substring/flex, prefix/substring (flex maybe slow on huge lists), and regexp.          |
+| =M-+=     | Toggle numbering of list elements.                                                                                                    |
+| =up=      | Move selection up.                                                                                                                    |
+| =down=    | Move selection down.                                                                                                                  |
+| =next=    | Move selection down a few lines.                                                                                                      |
+| =prior=   | Move selection up a few lines.                                                                                                        |
+| =home=    | Move selection to the first element.                                                                                                  |
+| =end=     | Move selection to the last element.                                                                                                   |
+| =S-down=  | Increase the number of visible elements.                                                                                              |
+| =S-up=    | Decrease the number of visible elements.                                                                                              |
+| =C-c C-c= | Pushes the current filter to the filter stack. The filtered list becomes the default list. The filter stack is shown in the modeline. |
+| =C-c C-v= | Pops one element from the filter stack.                                                                                               |
