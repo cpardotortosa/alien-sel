@@ -10,7 +10,12 @@ minibuffer is activated for filtering.
 
 - Filter options by typing in the minibuffer. Substring/regexp/'flex' matching available.
 - Push filters to narrow selection.
+- Text of the items can be propertized. The property =alien-sel-val= allows to specify a value to return different from the value to show.
 
+** Goals:
+
+- ido is great, but the minibuffer is too far away from the editing most of the time.
+- Small library, but with categorization, filtering, and extra information for items. Most of this is not yet implemented.
 
 ** Keys:
 | =return=  | Select the highlighted item and exit.                                                                                                 |
