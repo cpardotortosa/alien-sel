@@ -304,6 +304,10 @@ don't need to."
                     (setq alien-sel-visible-item-max-count
                           (max 12 (- alien-sel-visible-item-max-count 5))))
 
+(-alien-sel-command one-window "Deletes all other windows, so the list window takes the whole frame."
+                    [(control ?c) ?1]
+                    (delete-other-windows (get-buffer-window -alien-sel-buffer)))
+
 (-alien-sel-command filter-stack-push
                     "Pushed current filter into stack, making
 filtered list the default list until filter is poped from stack."
