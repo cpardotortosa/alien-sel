@@ -31,7 +31,8 @@ minibuffer is activated for filtering.
 | =S-down=  | Increase the number of visible elements.                                                                                              |
 | =S-up=    | Decrease the number of visible elements.                                                                                              |
 | =C-c C-c= | Pushes the current filter to the filter stack. The filtered list becomes the default list. The filter stack is shown in the modeline. |
-| =C-c C-v= | Pops one element from the filter stack.                                                                                               |
+| =C-c C-v= | Pops one element from the filter stack. |
+| =C-c 1= | Deletes all other windows, so the list window takes the whole frame. |
 
 
 
@@ -39,7 +40,6 @@ minibuffer is activated for filtering.
 - Some documentation.
 - Popup version.
 - Commands to degrade to ido, completing-read.
-- A command to take the entire frame.
 - When selecting the listing window, allow to make a choice from there too.
 - Item categories, by prefix or explicit. Allow to filter out categories.
 - When flex matching, if the first character of the filter is also the first character of the item, show that item before items with substring (not prefix) matching.
