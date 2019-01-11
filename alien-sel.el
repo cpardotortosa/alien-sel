@@ -311,7 +311,7 @@ don't need to."
 (-alien-sel-command filter-stack-push
                     "Pushed current filter into stack, making
 filtered list the default list until filter is poped from stack."
-                    [ (control ?c) (control ?c)]
+                    [ (control return)]
                     (add-to-list '-alien-sel-filter-stack
                                  (list -alien-sel-filter
                                        alien-sel-filter-type
@@ -322,7 +322,7 @@ filtered list the default list until filter is poped from stack."
                     
 (-alien-sel-command filter-stack-pop
                     "Pops one filter from the filter stack."
-                    [ (control ?c) (control ?v)]
+                    [ (meta return)]
                     (setq -alien-sel-options
                           (third (pop -alien-sel-filter-stack)))
                     (-alien-sel-apply-filter))
