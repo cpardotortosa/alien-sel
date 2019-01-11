@@ -33,7 +33,7 @@ minibuffer is activated for filtering.
 ** Next:
 - Some documentation.
 - Popup version.
-- Commands to degrade to ido, completing read.
+- Commands to degrade to ido, completing-read.
 - A command to take the entire frame.
 - When selecting the listing window, allow to make a choice from there too.
 - Item categories, by prefix or explicit. Allow to filter out categories.
