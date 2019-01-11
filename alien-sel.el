@@ -1,3 +1,11 @@
+;;; -*- coding: utf-8 -*-
+;;; alien-sel.el --- A library for user selection/completion.
+
+;; Copyright (C) 2019 Cecilio Pardo.
+
+;; Author: Cecilio Pardo <cpardo@imayhem.com>
+;; Keywords: selection, completion
+
 (require 'dash)
 (require 's)
 (require 'subr-x)
@@ -24,7 +32,7 @@ not get in the way too much"
   "Maximum number of items shown in the listing.")
 
 (defvar alien-sel-show-line-numbers t
-      "Show line numbers to the left of items.")
+  "Show line numbers to the left of items.")
 
 (defvar alien-sel-filter-type 'prefix-substring-flex
   "Initial filter type. The use can switch types on the fly.")
@@ -38,7 +46,7 @@ not get in the way too much"
 
 (defun -alien-sel-header-line()
   "Sets the header line for the listing buffer. It includes the
-prompt, and the total of items. "
+prompt, and the number of items (passing filter/total)."
   (let* ((l1 (-alien-sel-prompt -alien-sel-prompt t))
          (l2 (propertize (format
                           " %d/%d items"
@@ -61,9 +69,9 @@ does. Underline the matching characters. Does nothing if filter is using regexps
             (case-fold-search t))
         
         (--each-indexed option-as-list
-          ;; If this chars is filter[index-into-filter]:
+          ;; If this char is filter[index-into-filter]:
           ;;  - Underline this char.
-          ;;  - Incremente index into filter
+          ;;  - Increment index-into-filter
           (let ((filter-char (nth index-into-filter filter-as-list)))
             (when filter-char
               (when (char-equal filter-char it)
@@ -71,6 +79,7 @@ does. Underline the matching characters. Does nothing if filter is using regexps
                 (incf index-into-filter))))))))))
 
 (defun -alien-sel-flex-regexp(filter)
+  "Builds the regexp used for flex matching"
   (if (string-empty-p filter)
       ""
     (let* ((aslist (append filter nil))
@@ -80,6 +89,7 @@ does. Underline the matching characters. Does nothing if filter is using regexps
       result)))
 
 (defun -alien-sel-apply-filter()
+  "Apply the filter. Sets `-alien-sel-options-filtered' with the passing items."
   (let* ((re (regexp-quote -alien-sel-filter))
          (regexp-1 (concat "^" re))
          (regexp-2 re)
@@ -135,7 +145,9 @@ variables, displays the buffer and do some setup details."
   (select-window (display-buffer (current-buffer)))
   (setq cursor-in-non-selected-windows nil))
 
-;; TODO: Hacer una función que haga esto para cualquier índice, y aplicar a first-index y last-index en render.
+;; TODO: Make a function that takes an argument (the variable to
+;; normalize), and use it also for first-visible-index and
+;; last-visible index, in the render function.
 (defun -alien-sel-normalize-index()
   "Checks the index for boundaries, so that movement functions
 don't need to."
@@ -148,7 +160,10 @@ don't need to."
     (when (>= -alien-sel-index (length -alien-sel-options-filtered))
       (setq -alien-sel-index (1- (length -alien-sel-options-filtered))))))
 
+;; TODO - Probably the filter stack will live better in the header line.
 (defun -alien-sel-render-set-mode-line()
+  "Sets the modeline for the list buffer. It includes current
+filter type and the filter stack"
 
   (let ((filter-stack-string
          (concat "{ "
@@ -185,7 +200,8 @@ don't need to."
            mode-line-end-spaces))))
   
 (defun -alien-sel-render()
-  "Renders the selection buffer. Requires that the list buffer is the current buffer. It erases current buffer, so watch out."
+  "Renders the selection buffer. Requires that the list buffer is
+the current buffer. It erases current buffer, so watch out."
   (-alien-sel-normalize-index)
   (read-only-mode 0)    
   (-alien-sel-header-line)
@@ -322,16 +338,18 @@ filtered list the default list until filter is poped from stack."
                     
 (-alien-sel-command filter-stack-pop
                     "Pops one filter from the filter stack."
-                    [ (meta return)]
+                    [(meta return)]
                     (setq -alien-sel-options
                           (third (pop -alien-sel-filter-stack)))
                     (-alien-sel-apply-filter))
                     
 (defun alien-sel-switch-to-listing-buffer()
+  "Selects the listing window"
   (interactive)
   (select-window (get-buffer-window -alien-sel-buffer)))
   
 (defun alien-sel-enter()
+  "Selects the current item and exits"
   (interactive)
   (when -alien-sel-index
     (let ((selected-text
@@ -346,6 +364,7 @@ filtered list the default list until filter is poped from stack."
       (exit-minibuffer))))
 
 (defun -alien-sel-minibuffer-after-change(begin end len)
+  "Hooked to `after-change-functions' for the minibuffer. Updates filter and renders"
   (setq -alien-sel-filter (minibuffer-contents))
   (-alien-sel-apply-filter)
   (setq -alien-sel-index 0)
@@ -353,12 +372,16 @@ filtered list the default list until filter is poped from stack."
     (-alien-sel-render)))
 
 (defun -alien-sel-minibuffer-setup-hook()
-  ""
+  "Prepares the minibuffer."
   (setq -alien-sel-minibuffer-buffer (current-buffer))
   (add-hook 'after-change-functions
             '-alien-sel-minibuffer-after-change nil t))
 
 (defun alien-sel(prompt options)
+  "The entry point for alien-sel. Show the list options, with the
+given prompt, and returns the selected option. If the selected
+option text has the property `alien-sel-val', returns the value
+of that property instead."
   (save-window-excursion
     (with-current-buffer
         (get-buffer-create "*alien-sel*")
@@ -378,6 +401,7 @@ filtered list the default list until filter is poped from stack."
         (kill-buffer)))))
 
 (defun alien-sel-back-to-minibuffer()
+  "Reselects the minibuffer"
   (interactive)
   (select-window (active-minibuffer-window)))
 
