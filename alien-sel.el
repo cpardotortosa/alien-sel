@@ -122,7 +122,13 @@ does. Underline the matching characters. Does nothing if filter is using regexps
 
            ((eq alien-sel-filter-type 'regexp)
             (lambda(option filter)
-              (if (string-match-p -alien-sel-filter option) 1))))))
+              (condition-case nil
+                  (if (string-match-p -alien-sel-filter option) 1)
+                (error
+                 ;; TODO: Signal the user that the regexp is incorrect. In a nonintrusive way, as the regexp may be just
+                 ;; still incomplete.
+                 nil)))))))
+
     (setq -alien-sel-options-filtered
           (--sort
            (> (get-text-property 0 'alien-sel-score it)
