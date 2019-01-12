@@ -18,22 +18,29 @@ minibuffer is activated for filtering.
 - Small library, but with categorization, filtering, and extra information for items. Most of this is not yet implemented.
 
 ** Keys:
+*** Option selection:
 | =return=  | Select the highlighted item and exit.                                                                                                 |
-| =M-up=    | Activate the window with the list, to resize it, copy text, etc. Once there, use =M-down= or =C-g= to get back to the minibuffer.              |
-| =C-+=     | Cycle filter types. Types available are: prefix/substring/flex, prefix/substring (flex may be slow on huge lists), and regexp.          |
-| =M-+=     | Toggle numbering of list elements.                                                                                                    |
 | =up=      | Move selection up.                                                                                                                    |
 | =down=    | Move selection down.                                                                                                                  |
 | =next=    | Move selection down a few lines.                                                                                                      |
 | =prior=   | Move selection up a few lines.                                                                                                        |
 | =home=    | Move selection to the first element.                                                                                                  |
 | =end=     | Move selection to the last element.                                                                                                   |
-| =S-down=  | Increase the number of visible elements.                                                                                              |
-| =S-up=    | Decrease the number of visible elements.                                                                                              |
+| =M-down= | Fall back to completing-read. |
+
+*** Filtering:
+| =C-+=     | Cycle filter types. Types available are: prefix/substring/flex, prefix/substring (flex may be slow on huge lists), and regexp.          |
 | =C-return= | Pushes the current filter to the filter stack. The filtered list becomes the default list. The filter stack is shown in the modeline. |
 | =M-return= | Pops one element from the filter stack. |
+
+*** List presentation:
+| =M-+=     | Toggle numbering of list elements.                                                                                                    |
+| =S-down=  | Increase the number of visible elements.                                                                                              |
+| =S-up=    | Decrease the number of visible elements.                                                                                              |
 | =C-c 1= | Deletes all other windows, so the list window takes the whole frame. |
-| =M-down= | Fall back to completing-read. |
+
+*** Misc:
+| =M-up=    | Activate the window with the list, to resize it, copy text, etc. Once there, use =M-down= or =C-g= to get back to the minibuffer.              |
 
 
 
