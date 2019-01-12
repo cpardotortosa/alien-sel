@@ -33,13 +33,13 @@ minibuffer is activated for filtering.
 | =C-return= | Pushes the current filter to the filter stack. The filtered list becomes the default list. The filter stack is shown in the modeline. |
 | =M-return= | Pops one element from the filter stack. |
 | =C-c 1= | Deletes all other windows, so the list window takes the whole frame. |
+| =M-down= | Fall back to completing-read. |
 
 
 
 ** Next:
 - Some documentation.
 - Popup version.
-- Commands to degrade to ido, completing-read.
 - When selecting the listing window, allow to make a choice from there too.
 - Item categories, by prefix or explicit. Allow to filter out categories.
 - When flex matching, if the first character of the filter is also the first character of the item, show that item before items with substring (not prefix) matching.
