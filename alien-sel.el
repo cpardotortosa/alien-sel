@@ -115,6 +115,11 @@ does. Underline the matching characters. Does nothing if filter is using regexps
                ;; If the string contains the entire substring gets a score of 2
                ((string-match-p regexp-2 option) 2))))
            
+           ((eq alien-sel-filter-type 'prefix)
+            (lambda(option filter)
+              (cond
+               ((string-match-p regexp-1 option) 3))))
+
            ((eq alien-sel-filter-type 'regexp)
             (lambda(option filter)
               (if (string-match-p -alien-sel-filter option) 1))))))
@@ -173,6 +178,7 @@ filter type and the filter stack"
                      (concat
                       (cond
                        ((eq (second x) 'prefix-substring-flex) "fl:")
+                       ((eq (second x) 'prefix) "^:")
                        ((eq (second x) 'regexp) "re:")
                        (""))
                       "[" (first x) "] "))
@@ -187,6 +193,7 @@ filter type and the filter stack"
             (cond
              ((eq alien-sel-filter-type 'prefix-substring-flex) "prefix > substr > flex")
              ((eq alien-sel-filter-type 'prefix-substring) "prefix > substr")
+             ((eq alien-sel-filter-type 'prefix) "prefix")
              ((eq alien-sel-filter-type 'regexp) "regexp"))
             'face 'mode-line-emphasis)
            ", change with "
@@ -287,6 +294,7 @@ the current buffer. It erases current buffer, so watch out."
                           (cond
                            ((eq alien-sel-filter-type 'prefix-substring-flex) 'regexp)
                            ((eq alien-sel-filter-type 'regexp) 'prefix-substring)
+                           ((eq alien-sel-filter-type 'prefix-substring) 'prefix)
                            ('prefix-substring-flex) ))
                     (-alien-sel-apply-filter)
                     (setq -alien-sel-index 0))
