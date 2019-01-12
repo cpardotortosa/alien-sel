@@ -29,7 +29,7 @@ minibuffer is activated for filtering.
 | =M-down= | Fall back to completing-read. |
 
 *** Filtering:
-| =C-+=     | Cycle filter types. Types available are: prefix/substring/flex, prefix/substring (flex may be slow on huge lists), and regexp.          |
+| =C-+=     | Cycle filter types. Types available are: prefix/substring/flex, prefix/substring, prefix, and regexp.         |
 | =C-return= | Pushes the current filter to the filter stack. The filtered list becomes the default list. The filter stack is shown in the modeline. |
 | =M-return= | Pops one element from the filter stack. |
 
