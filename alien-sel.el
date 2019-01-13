@@ -341,14 +341,20 @@ the current buffer. It erases current buffer, so watch out."
 (-alien-sel-command filter-stack-push
                     "Pushed current filter into stack, making
 filtered list the default list until filter is poped from stack."
-                    [ (control return)]
-                    (add-to-list '-alien-sel-filter-stack
-                                 (list -alien-sel-filter
-                                       alien-sel-filter-type
-                                       -alien-sel-options))
-                    (setq -alien-sel-options -alien-sel-options-filtered)
-                    (with-current-buffer -alien-sel-minibuffer-buffer
-                      (delete-minibuffer-contents)))
+                    [(control return)]
+                    (unless (string-empty-p -alien-sel-filter)
+                      (add-to-list '-alien-sel-filter-stack
+                                   (list -alien-sel-filter
+                                         alien-sel-filter-type
+                                         -alien-sel-options)
+                                   nil
+                                   ;; Don't allow duplicated filters (same text, same kind)
+                                   (lambda(x y)
+                                     (and (equal (first x) (first y))
+                                          (equal (second x) (second y)))))
+                      (setq -alien-sel-options -alien-sel-options-filtered)
+                      (with-current-buffer -alien-sel-minibuffer-buffer
+                        (delete-minibuffer-contents))))
                     
 (-alien-sel-command filter-stack-pop
                     "Pops one filter from the filter stack."
