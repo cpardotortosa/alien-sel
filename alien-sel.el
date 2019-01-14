@@ -171,13 +171,35 @@ don't need to."
     (when (>= -alien-sel-index (length -alien-sel-options-filtered))
       (setq -alien-sel-index (1- (length -alien-sel-options-filtered))))))
 
-;; TODO - Probably the filter stack will live better in the header line.
+
+(defun -alien-sel-render-set-mode-line-filter-kind(modes)
+  (concat 
+   (propertize "prefix" 'face (if (first modes) 'bold 'shadow)) " "
+   (propertize "substr" 'face (if (second modes) 'bold 'shadow)) " "
+   (propertize "flex" 'face (if (third modes) 'bold 'shadow)) " "
+   (propertize "regexp" 'face (if (fourth modes) 'bold 'shadow))))
+
+;; TODO - Probably the filter stack will live better in the header line,
+;; or event on the minibuffer, above the prompt.
+
 (defun -alien-sel-render-set-mode-line()
   "Sets the modeline for the list buffer. It includes current
 filter type and the filter stack"
 
-  (let ((filter-stack-string
-         (concat "{ "
+  (let ((cycle-filter-key
+         (key-description
+          (first
+           (where-is-internal
+            'alien-sel-cycle-filter-type
+            alien-sel-minibuffer-map))))
+        (filter-type
+         (-alien-sel-render-set-mode-line-filter-kind
+          (cond
+           ((eq alien-sel-filter-type 'prefix-substring-flex) '(t t t nil))
+           ((eq alien-sel-filter-type 'prefix-substring) '(t t nil nil))
+           ((eq alien-sel-filter-type 'prefix) '(t nil nil nil))
+           ((eq alien-sel-filter-type 'regexp) '(nil nil nil t)))))
+        (filter-stack-string
            (apply 'concat
                   (mapcar
                    (lambda(x)
@@ -188,28 +210,13 @@ filter type and the filter stack"
                        ((eq (second x) 'regexp) "re:")
                        (""))
                       "[" (first x) "] "))
-                   -alien-sel-filter-stack))
-           "}")))
-                   
+                   -alien-sel-filter-stack))))
     (setq mode-line-format
           (list
            mode-line-front-space
-           "Filter type: "
-           (propertize
-            (cond
-             ((eq alien-sel-filter-type 'prefix-substring-flex) "prefix > substr > flex")
-             ((eq alien-sel-filter-type 'prefix-substring) "prefix > substr")
-             ((eq alien-sel-filter-type 'prefix) "prefix")
-             ((eq alien-sel-filter-type 'regexp) "regexp"))
-            'face 'mode-line-emphasis)
-           ", change with "
-           (key-description
-            (first
-             (where-is-internal
-              'alien-sel-cycle-filter-type
-              alien-sel-minibuffer-map)))
-           "   "
-           filter-stack-string
+           "[" cycle-filter-key "] "
+           filter-type
+           " { " filter-stack-string " }"
            mode-line-end-spaces))))
   
 (defun -alien-sel-render()
