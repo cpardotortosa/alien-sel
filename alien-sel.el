@@ -409,24 +409,25 @@ given prompt, and returns the selected option. If the selected
 option text has the property `alien-sel-val', returns the value
 of that property instead."
   (setq -alien-sel-degraded nil)
-  (let ((retval
-         (save-window-excursion
-           (with-current-buffer
-               (get-buffer-create "*alien-sel*")
-             (-alien-sel-setup-buffer prompt options)
-             (-alien-sel-render)
-             (unwind-protect
-                 (progn
-                   (add-hook 'minibuffer-setup-hook '-alien-sel-minibuffer-setup-hook)
-                   (read-from-minibuffer
-                    (-alien-sel-prompt prompt)
-                    nil
-                    alien-sel-minibuffer-map))
-               (remove-hook 'minibuffer-setup-hook '-alien-sel-minibuffer-setup-hook)
-               (with-current-buffer -alien-sel-minibuffer-buffer
-                 (remove-hook 'after-change-functions
-                              '-alien-sel-minibuffer-after-change t))
-               (kill-buffer))))))
+  (let* ((minibuffer-allow-text-properties t)
+         (retval
+          (save-window-excursion
+            (with-current-buffer
+                (get-buffer-create "*alien-sel*")
+              (-alien-sel-setup-buffer prompt options)
+              (-alien-sel-render)
+              (unwind-protect
+                  (progn
+                    (add-hook 'minibuffer-setup-hook '-alien-sel-minibuffer-setup-hook)
+                    (read-from-minibuffer
+                     (-alien-sel-prompt prompt)
+                     nil
+                     alien-sel-minibuffer-map))
+                (remove-hook 'minibuffer-setup-hook '-alien-sel-minibuffer-setup-hook)
+                (with-current-buffer -alien-sel-minibuffer-buffer
+                  (remove-hook 'after-change-functions
+                               '-alien-sel-minibuffer-after-change t))
+                (kill-buffer))))))
     (if -alien-sel-degraded
         (completing-read (concat prompt ": ") options nil t)
       retval)))
