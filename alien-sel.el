@@ -56,8 +56,11 @@ prompt, and the number of items (passing filter/total)."
 
 (defun -alien-sel-propertize-for-filter(option filter)
   "Propertize a string that matches the filter, to show how it
-does. Underline the matching characters. Does nothing if filter is using regexps"
-  (unless (eq alien-sel-filter-type 'regexp)
+does. Underline the matching characters."
+  (if (eq alien-sel-filter-type 'regexp)
+      (progn
+        (string-match filter option)
+        (add-face-text-property (match-beginning 0) (match-end 0) 'underline nil option))
     (cond
      ;; Substring matching
      ((string-match (regexp-quote filter) option)
