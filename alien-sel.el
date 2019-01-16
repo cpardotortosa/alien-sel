@@ -98,7 +98,6 @@ does. Underline the matching characters."
          (regexp-2 re)
          (regexp-3 (-alien-sel-flex-regexp -alien-sel-filter))
          (scorer
-
           (cond
            ((eq alien-sel-filter-type 'prefix-substring-flex)
             (lambda(option filter)
@@ -145,7 +144,35 @@ does. Underline the matching characters."
                 nil))
             -alien-sel-options)))))
 
-(defun -alien-sel-setup-buffer(prompt options)
+(defun -alien-sel-normalize-inline-frame(frame)
+  (let ((p (window-absolute-pixel-position))
+        (f (frame-edges nil 'inner-edges)))
+    (set-frame-position frame
+                        (- (car p) (first f))
+                        (- (cdr p) (second f)))))
+
+;; TODO: Should pass (minibuffer . [minibuffer-window])?
+;; TODO: Probably pass (minibuffer-exit . t), instead of deleting the frame.
+;; TODO: Check what happens if scrollbars are enabled.
+(defun -alien-sel-display-buffer(buf inline)
+  (if (not inline)
+      (display-buffer buf)
+    (let ((window
+           (display-buffer-in-child-frame
+            buf
+            `((child-frame-parameters . ((undecorated . t)
+                                         (alpha . 95)
+                                         (border-width . 1)
+                                         (left-fringe . 0)
+                                         (right-fringe . 0)
+                                         (minibuffer . nil)
+                                         (height . 17)))))))
+      (setq -alien-sel-inline-frame (window-frame window))
+      (-alien-sel-normalize-inline-frame -alien-sel-inline-frame)
+      window)))
+
+  
+(defun -alien-sel-setup-buffer(prompt options &optional inline)
   "After creating the selection buffer, sets the global
 variables, displays the buffer and do some setup details."
   (alien-sel-list-mode)
@@ -156,7 +183,7 @@ variables, displays the buffer and do some setup details."
   (setq -alien-sel-index 0)
   (setq -alien-sel-prompt prompt)
   (setq -alien-sel-buffer (current-buffer))
-  (select-window (display-buffer (current-buffer)))
+  (select-window (-alien-sel-display-buffer (current-buffer) inline))
   (setq cursor-in-non-selected-windows nil))
 
 ;; TODO: Make a function that takes an argument (the variable to
@@ -253,14 +280,15 @@ the current buffer. It erases current buffer, so watch out."
              (if (= index -alien-sel-index)
                  (progn
                    (setq selected-point (point))
-                   (setq overlay-arrow-position (point-marker))
+                   (unless -alien-sel-inline-frame
+                     (setq overlay-arrow-position (point-marker)))
                    (setq face 'match))
                (setq face nil))
              (let* ((item (propertize (format " %s\n" o)  'face face)))
                (-alien-sel-propertize-for-filter item -alien-sel-filter)
                (insert
                 (if alien-sel-show-line-numbers
-                    (concat " " (propertize (format "%d" index) 'face face) item)
+                    (concat (propertize (format " %d" index) 'face face) item)
                   item)))))
           (incf index))
         (when (< last-index (1- (length -alien-sel-options-filtered)))
@@ -280,7 +308,7 @@ the current buffer. It erases current buffer, so watch out."
 (defmacro -alien-sel-with-selection-buffer(&rest body)
   "Make this selection buffer current, selects its window and runs `body'"
   `(with-current-buffer -alien-sel-buffer
-     (with-selected-window (get-buffer-window)
+     (with-selected-window (get-buffer-window nil t)
        ,@body)))
 
 (defmacro -alien-sel-command(fname documentation key &rest body)
@@ -382,7 +410,7 @@ filtered list the default list until filter is poped from stack."
 (defun alien-sel-switch-to-listing-buffer()
   "Selects the listing window"
   (interactive)
-  (select-window (get-buffer-window -alien-sel-buffer)))
+  (select-window (get-buffer-window -alien-sel-buffer t)))
   
 (defun alien-sel-enter()
   "Selects the current item and exits"
@@ -413,18 +441,20 @@ filtered list the default list until filter is poped from stack."
   (add-hook 'after-change-functions
             '-alien-sel-minibuffer-after-change nil t))
 
-(defun alien-sel(prompt options)
-  "The entry point for alien-sel. Show the list options, with the
-given prompt, and returns the selected option. If the selected
-option text has the property `alien-sel-val', returns the value
-of that property instead."
+(defun alien-sel(prompt options &optional inline)
+  "The entry point for alien-sel. Shows the list options, with
+the given prompt, and returns the selected option. If the
+selected option text has the property `alien-sel-val', returns
+the value of that property instead. If inline is not nil, then
+show the list in its own popup, undecorated frame."
   (setq -alien-sel-degraded nil)
   (let* ((minibuffer-allow-text-properties t)
          (retval
           (save-window-excursion
             (with-current-buffer
                 (get-buffer-create "*alien-sel*")
-              (-alien-sel-setup-buffer prompt options)
+              (setq -alien-sel-inline-frame nil)
+              (-alien-sel-setup-buffer prompt options inline)
               (-alien-sel-render)
               (unwind-protect
                   (progn
@@ -437,7 +467,11 @@ of that property instead."
                 (with-current-buffer -alien-sel-minibuffer-buffer
                   (remove-hook 'after-change-functions
                                '-alien-sel-minibuffer-after-change t))
-                (kill-buffer))))))
+                (kill-buffer)
+                (if -alien-sel-inline-frame
+                    (delete-frame -alien-sel-inline-frame))
+
+                )))))
     (if -alien-sel-degraded
         (completing-read (concat prompt ": ") options nil t)
       retval)))

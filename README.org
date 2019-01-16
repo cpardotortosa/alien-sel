@@ -8,9 +8,12 @@ minibuffer is activated for filtering.
 
 ** Features:
 
-- Filter options by typing in the minibuffer. Substring/regexp/'flex' matching available.
+- Filter options by typing in the minibuffer. Substring, regexp and flex matching available.
+- The selection list can appear in a normal window, or a 'popup' window where the cursor is. 
+  [[screenshot_popup.png]]
 - Push filters to narrow selection.
-- Text of the items can be propertized. The property =alien-sel-val= allows to specify a value to return different from the value to show.
+- Text of the items can be propertized. The property =alien-sel-val= allows to specify a value to return different from
+  the value to show. Properties are preserved in the return nvalue.
 
 ** Goals:
 
@@ -45,9 +48,10 @@ minibuffer is activated for filtering.
 
 
 ** Next:
-- Some documentation.
-- Popup version.
+- Documentation.
+- Relocate the popup frame if not fully visible.
+- Commands to handle the popup frame: opacity, size, position.
 - When selecting the listing window, allow to make a choice from there too.
 - Item categories, by prefix or explicit. Allow to filter out categories.
 - When flex matching, if the first character of the filter is also the first character of the item, show that item before items with substring (not prefix) matching.
-- tab completion, initial input.
+- Tab completion, initial input.
