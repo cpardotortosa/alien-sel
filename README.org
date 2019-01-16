@@ -10,7 +10,7 @@ minibuffer is activated for filtering.
 
 - Filter options by typing in the minibuffer. Substring, regexp and flex matching available.
 - The selection list can appear in a normal window, or a 'popup' window where the cursor is. 
-  [[screenshot_popup.png]]
+  [[screenshot-popup.png]]
 - Push filters to narrow selection.
 - Text of the items can be propertized. The property =alien-sel-val= allows to specify a value to return different from
   the value to show. Properties are preserved in the return nvalue.
