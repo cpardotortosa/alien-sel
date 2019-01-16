@@ -39,7 +39,7 @@ not get in the way too much"
 
 (defun -alien-sel-prompt(prompt &optional nocolon)
   "Builds the prompt from a string, adding the Alien logo"
-  (format "%s %s%s"
+  (format " %s %s%s"
           (propertize "/A\\" 'face 'alien-sel-logo-face )
           prompt
           (if nocolon "" ": ")))
@@ -231,47 +231,50 @@ don't need to."
    (propertize "flex" 'face (if (third modes) 'bold 'shadow)) " "
    (propertize "regexp" 'face (if (fourth modes) 'bold 'shadow))))
 
-;; TODO - Probably the filter stack will live better in the header line,
-;; or event on the minibuffer, above the prompt.
-
-(defun -alien-sel-render-set-mode-line()
-  "Sets the modeline for the list buffer. It includes current
-filter type and the filter stack"
-  (if -alien-sel-with-modeline
-      (let ((cycle-filter-key
-             (key-description
-              (first
-               (where-is-internal
-                'alien-sel-cycle-filter-type
-                alien-sel-minibuffer-map))))
-            (filter-type
-             (-alien-sel-render-set-mode-line-filter-kind
+(defun -alien-sel-make-mode-line-format()
+  (let ((cycle-filter-key
+         (key-description
+          (first
+           (where-is-internal
+            'alien-sel-cycle-filter-type
+            alien-sel-minibuffer-map))))
+        (filter-type
+         (-alien-sel-render-set-mode-line-filter-kind
           (cond
            ((eq alien-sel-filter-type 'prefix-substring-flex) '(t t t nil))
            ((eq alien-sel-filter-type 'prefix-substring) '(t t nil nil))
            ((eq alien-sel-filter-type 'prefix) '(t nil nil nil))
            ((eq alien-sel-filter-type 'regexp) '(nil nil nil t)))))
-            (filter-stack-string
-             (apply 'concat
-                    (mapcar
-                     (lambda(x)
-                       (concat
-                        (cond
+        (filter-stack-string
+         (apply 'concat
+                (mapcar
+                 (lambda(x)
+                   (concat
+                    (cond
                          ((eq (second x) 'prefix-substring-flex) "fl:")
                          ((eq (second x) 'prefix) "^:")
-                       ((eq (second x) 'regexp) "re:")
-                       (""))
-                        "[" (first x) "] "))
-                     -alien-sel-filter-stack))))
-        (setq mode-line-format
-              (list
-               mode-line-front-space
-               "[" cycle-filter-key "] "
-               filter-type
-               " { " filter-stack-string " }"
-               mode-line-end-spaces)))
-    (setq mode-line-format nil)))
-  
+                         ((eq (second x) 'regexp) "re:")
+                         (""))
+                    "[" (first x) "] "))
+                 -alien-sel-filter-stack))))
+    (list
+     mode-line-front-space
+     "[" cycle-filter-key "] "
+     filter-type
+     " { " filter-stack-string " }"
+     mode-line-end-spaces)))
+
+;; TODO - Probably the filter stack will live better in the header line,
+;; or event on the minibuffer, above the prompt.
+(defun -alien-sel-render-set-mode-line()
+  "Sets the modeline for the list buffer. It includes current
+filter type and the filter stack"
+  (if -alien-sel-with-modeline
+      (setq mode-line-format
+            (-alien-sel-make-mode-line-format))
+    (setq
+     mode-line-format nil)))
+
 (defun -alien-sel-render()
   "Renders the selection buffer. Requires that the list buffer is
 the current buffer. It erases current buffer, so watch out."
@@ -326,7 +329,10 @@ the current buffer. It erases current buffer, so watch out."
   (-alien-sel-render-set-mode-line)
   (read-only-mode 1)
   ;; If window is too small, recenter to the top.
-  (recenter (+ 2 alien-sel-visible-item-max-count-before-selected)))
+  (recenter (+ 2 alien-sel-visible-item-max-count-before-selected))
+
+  ;; If there is no modeline, show the filter configuration in the minibuffer.
+  (-alien-sel-add-filter-info-in-minibuffer))
 
 (defmacro -alien-sel-with-selection-buffer(&rest body)
   "Make this selection buffer current, selects its window and runs `body'"
@@ -420,8 +426,9 @@ filtered list the default list until filter is poped from stack."
 (-alien-sel-command filter-stack-pop
                     "Pops one filter from the filter stack."
                     [(meta return)]
-                    (setq -alien-sel-options
-                          (third (pop -alien-sel-filter-stack)))
+                    (when -alien-sel-filter-stack
+                      (setq -alien-sel-options
+                            (third (pop -alien-sel-filter-stack))))
                     (-alien-sel-apply-filter))
 
 (-alien-sel-command degrade
@@ -458,11 +465,25 @@ filtered list the default list until filter is poped from stack."
   (-alien-sel-with-selection-buffer
     (-alien-sel-render)))
 
+(defun -alien-sel-add-filter-info-in-minibuffer()
+  "When using minimal popup frame for completion list, the filter
+  info is show in the minibuffer. This functions puts it there"
+  (unless -alien-sel-with-modeline
+    (with-current-buffer -alien-sel-minibuffer-buffer
+      (when -alien-sel-minibuffer-overlay
+        (delete-overlay -alien-sel-minibuffer-overlay))
+      (setq -alien-sel-minibuffer-overlay
+            (make-overlay (point-min) (1+ (point-min))))
+      (overlay-put -alien-sel-minibuffer-overlay 'before-string
+                   (concat (format-mode-line (-alien-sel-make-mode-line-format)) "\n")))))
+
 (defun -alien-sel-minibuffer-setup-hook()
   "Prepares the minibuffer."
   (setq -alien-sel-minibuffer-buffer (current-buffer))
+  (setq -alien-sel-minibuffer-overlay nil)
   (add-hook 'after-change-functions
-            '-alien-sel-minibuffer-after-change nil t))
+            '-alien-sel-minibuffer-after-change nil t)
+  (-alien-sel-add-filter-info-in-minibuffer))
 
 (defun alien-sel(prompt options &optional inline)
   "The entry point for alien-sel. Shows the list options, with
