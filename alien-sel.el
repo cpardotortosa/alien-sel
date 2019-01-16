@@ -47,12 +47,13 @@ not get in the way too much"
 (defun -alien-sel-header-line()
   "Sets the header line for the listing buffer. It includes the
 prompt, and the number of items (passing filter/total)."
-  (let* ((l1 (-alien-sel-prompt -alien-sel-prompt t))
-         (l2 (propertize (format
-                          " %d/%d items"
-                          (length -alien-sel-options-filtered)                          
-                          (length -alien-sel-options)))))
-    (setq header-line-format (format " %s       %s" l1 l2))))
+  (if -alien-sel-with-header
+      (let* ((l1 (-alien-sel-prompt -alien-sel-prompt t))
+             (l2 (propertize (format
+                              " %d/%d items"
+                              (length -alien-sel-options-filtered)                          
+                              (length -alien-sel-options)))))
+        (setq header-line-format (format " %s       %s" l1 l2)))))
 
 (defun -alien-sel-propertize-for-filter(option filter)
   "Propertize a string that matches the filter, to show how it
@@ -151,6 +152,23 @@ does. Underline the matching characters."
                         (- (car p) (first f))
                         (- (cdr p) (second f)))))
 
+(defun -alien-sel-inline-frame-parameters(type)
+  `((child-frame-parameters .
+                            ,(append
+                              '((undecorated . t)
+                                (vertical-scroll-bars . nil)
+                                (border-width . 1)
+                                (left-fringe . 0)
+                                (right-fringe . 0)
+                                (minibuffer . nil)
+                                (height . 17)
+                                (alpha . 90))
+                              ;; Not much use for this right now.
+                              (cond
+                              ((eq type 'minimal)
+                               '())
+                              ('()))))))
+
 ;; TODO: Should pass (minibuffer . [minibuffer-window])?
 ;; TODO: Probably pass (minibuffer-exit . t), instead of deleting the frame.
 ;; TODO: Check what happens if scrollbars are enabled.
@@ -160,14 +178,15 @@ does. Underline the matching characters."
     (let ((window
            (display-buffer-in-child-frame
             buf
-            `((child-frame-parameters . ((undecorated . t)
-                                         (alpha . 95)
-                                         (border-width . 1)
-                                         (left-fringe . 0)
-                                         (right-fringe . 0)
-                                         (minibuffer . nil)
-                                         (height . 17)))))))
+            (-alien-sel-inline-frame-parameters inline))))
       (setq -alien-sel-inline-frame (window-frame window))
+
+      (cond
+       ((eq inline 'minimal)
+        (setq -alien-sel-with-header nil)
+        (setq -alien-sel-with-modeline nil)
+        ))
+      
       (-alien-sel-normalize-inline-frame -alien-sel-inline-frame)
       window)))
 
@@ -183,6 +202,9 @@ variables, displays the buffer and do some setup details."
   (setq -alien-sel-index 0)
   (setq -alien-sel-prompt prompt)
   (setq -alien-sel-buffer (current-buffer))
+
+  (setq -alien-sel-with-header t)
+  (setq -alien-sel-with-modeline t)
   (select-window (-alien-sel-display-buffer (current-buffer) inline))
   (setq cursor-in-non-selected-windows nil))
 
@@ -215,39 +237,40 @@ don't need to."
 (defun -alien-sel-render-set-mode-line()
   "Sets the modeline for the list buffer. It includes current
 filter type and the filter stack"
-
-  (let ((cycle-filter-key
-         (key-description
-          (first
-           (where-is-internal
-            'alien-sel-cycle-filter-type
-            alien-sel-minibuffer-map))))
-        (filter-type
-         (-alien-sel-render-set-mode-line-filter-kind
+  (if -alien-sel-with-modeline
+      (let ((cycle-filter-key
+             (key-description
+              (first
+               (where-is-internal
+                'alien-sel-cycle-filter-type
+                alien-sel-minibuffer-map))))
+            (filter-type
+             (-alien-sel-render-set-mode-line-filter-kind
           (cond
            ((eq alien-sel-filter-type 'prefix-substring-flex) '(t t t nil))
            ((eq alien-sel-filter-type 'prefix-substring) '(t t nil nil))
            ((eq alien-sel-filter-type 'prefix) '(t nil nil nil))
            ((eq alien-sel-filter-type 'regexp) '(nil nil nil t)))))
-        (filter-stack-string
-           (apply 'concat
-                  (mapcar
-                   (lambda(x)
-                     (concat
-                      (cond
-                       ((eq (second x) 'prefix-substring-flex) "fl:")
-                       ((eq (second x) 'prefix) "^:")
+            (filter-stack-string
+             (apply 'concat
+                    (mapcar
+                     (lambda(x)
+                       (concat
+                        (cond
+                         ((eq (second x) 'prefix-substring-flex) "fl:")
+                         ((eq (second x) 'prefix) "^:")
                        ((eq (second x) 'regexp) "re:")
                        (""))
-                      "[" (first x) "] "))
-                   -alien-sel-filter-stack))))
-    (setq mode-line-format
-          (list
-           mode-line-front-space
-           "[" cycle-filter-key "] "
-           filter-type
-           " { " filter-stack-string " }"
-           mode-line-end-spaces))))
+                        "[" (first x) "] "))
+                     -alien-sel-filter-stack))))
+        (setq mode-line-format
+              (list
+               mode-line-front-space
+               "[" cycle-filter-key "] "
+               filter-type
+               " { " filter-stack-string " }"
+               mode-line-end-spaces)))
+    (setq mode-line-format nil)))
   
 (defun -alien-sel-render()
   "Renders the selection buffer. Requires that the list buffer is
