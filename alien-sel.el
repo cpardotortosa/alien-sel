@@ -37,6 +37,23 @@ not get in the way too much"
 (defvar alien-sel-filter-type 'prefix-substring-flex
   "Initial filter type. The use can switch types on the fly.")
 
+;; Global variables with state information:
+
+;; -alien-sel-options - The choices. Pushing filters changes this.
+;; -alien-sel-options-filtered - The filtered choices.
+;; -alien-sel-inline-frame - The child frame, when using one.
+;; -alien-sel-with-header - The selection buffer has an informative header.
+;; -alien-sel-with-modeline - The selection buffer has a modeline with filter information.
+;; -alien-sel-filter-stack - The filters that have been pushed.
+;; -alien-sel-filter - The current filter string.
+;; -alien-sel-index - The currently selected index.
+;; -alien-sel-prompt - The prompt.
+;; -alien-sel-buffer - The selection buffer
+;; -alien-sel-degraded - Flag set by the comannd alien-sel-degrade. When active, call completing-read after finishing.
+;; -alien-sel-minibuffer-overlay - The overlay used to display filter information on the minibuffer. It is used when the
+;;                                 selection buffer has no modeline.
+;; -alien-sel-minibuffer-buffer - The minibuffer.
+
 (defun -alien-sel-prompt(prompt &optional nocolon)
   "Builds the prompt from a string, adding the Alien logo"
   (format " %s %s%s"
@@ -161,7 +178,8 @@ does. Underline the matching characters."
                                 (left-fringe . 0)
                                 (right-fringe . 0)
                                 (minibuffer . nil)
-                                (height . 17)
+                                (width . 55)
+                                (height . 15)
                                 (alpha . 90))
                               ;; Not much use for this right now.
                               (cond
@@ -513,9 +531,7 @@ show the list in its own popup, undecorated frame."
                                '-alien-sel-minibuffer-after-change t))
                 (kill-buffer)
                 (if -alien-sel-inline-frame
-                    (delete-frame -alien-sel-inline-frame))
-
-                )))))
+                    (delete-frame -alien-sel-inline-frame)))))))
     (if -alien-sel-degraded
         (completing-read (concat prompt ": ") options nil t)
       retval)))
