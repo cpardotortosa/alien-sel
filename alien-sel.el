@@ -163,11 +163,21 @@ does. Underline the matching characters."
             -alien-sel-options)))))
 
 (defun -alien-sel-normalize-inline-frame(frame)
-  (let ((p (window-absolute-pixel-position))
-        (f (frame-edges nil 'inner-edges)))
-    (set-frame-position frame
-                        (- (car p) (first f))
-                        (- (cdr p) (second f)))))
+  (let* ((p (window-absolute-pixel-position))
+         (f (frame-edges nil 'inner-edges))
+         (x (- (car p) (first f)))
+         (y (- (cdr p) (second f))))
+    ;; Move it to the cursor.
+    (set-frame-position frame x y)
+    (let* ((fchild (frame-edges frame 'outer-edges))
+           (x-excess (- (third fchild) (third f)))
+           (y-excess (- (fourth fchild) (fourth f))))
+      ;; If too far right, move to the left.
+      (when (> x-excess 0)
+        (setq x (max 0 (- x x-excess)))
+        (set-frame-position frame x y))
+      (when (> y-excess 0)
+        (set-frame-position frame x (max 0 (- y y-excess)))))))
 
 (defun -alien-sel-inline-frame-parameters(type)
   `((child-frame-parameters .
