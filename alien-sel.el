@@ -514,11 +514,17 @@ filtered list the default list until filter is poped from stack."
   (-alien-sel-add-filter-info-in-minibuffer))
 
 (defun alien-sel(prompt options &optional inline)
-  "The entry point for alien-sel. Shows the list options, with
-the given prompt, and returns the selected option. If the
-selected option text has the property `alien-sel-val', returns
-the value of that property instead. If inline is not nil, then
-show the list in its own popup, undecorated frame."
+  "The entry point for alien-sel. Shows the list of options, with
+the given prompt, and returns the selected option. 
+
+If the selected option text has the property `alien-sel-val', returns
+the value of that property instead. 
+
+If inline is not nil, then show the list in its own popup,
+undecorated frame. If it is 'minimal, shows a frame without
+header and mode line. In this case, the filter information is
+presented in the minibuffer."
+
   (setq -alien-sel-degraded nil)
   (let* ((minibuffer-allow-text-properties t)
          (retval
