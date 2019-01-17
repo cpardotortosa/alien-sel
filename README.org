@@ -9,15 +9,21 @@ minibuffer is activated for filtering.
 ** Features:
 
 - Filter options by typing in the minibuffer. Substring, regexp and flex matching available.
-- The selection list can appear in a normal window, or a 'popup' window where the cursor is. 
-  [[screenshot-popup.png]]
+- The selection list can appear in a normal window, or a 'popup' window where the cursor is. Popup have a couple of styles.
+
+  [[screenshot_window.png]]
+
+  [[screenshot_popup.png]]
+
+  [[screenshot_popup2.png]]
+
 - Push filters to narrow selection.
 - Text of the items can be propertized. The property =alien-sel-val= allows to specify a value to return different from
   the value to show. Properties are preserved in the return nvalue.
 
 ** Goals:
 
-- ido is great, but the minibuffer is too far away from the editing most of the time.
+- Emacs' ido is great, but the minibuffer is too far away from the editing most of the time.
 - Small library, but with categorization, filtering, and extra information for items. Most of this is not yet implemented.
 
 ** Keys:
@@ -49,7 +55,6 @@ minibuffer is activated for filtering.
 
 ** Next:
 - Documentation.
-- Relocate the popup frame if not fully visible.
 - Commands to handle the popup frame: opacity, size, position.
 - When selecting the listing window, allow to make a choice from there too.
 - Item categories, by prefix or explicit. Allow to filter out categories.
