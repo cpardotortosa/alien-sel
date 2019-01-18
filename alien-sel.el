@@ -303,6 +303,24 @@ filter type and the filter stack"
     (setq
      mode-line-format nil)))
 
+(defun -alien-sel-render-item(o index face max-length)
+  (if alien-sel-show-line-numbers
+      (insert (propertize (format " %d" index) 'face face)))
+  (insert (propertize " " 'face face))
+  (let ((item (propertize o 'face face))
+        (subtext (get-text-property 0 'alien-sel-subtext o)))
+    (-alien-sel-propertize-for-filter item -alien-sel-filter)
+    (insert item)
+    (if subtext
+        (insert
+         (propertize " " 'face face)
+         (propertize " " 'face face 'display `(space .(:align-to ,max-length)))
+         (propertize subtext 'face
+                     (if face
+                         `(:foreground "#808080" :slant oblique :inherit ,face)
+                         `(:foreground "#808080" :slant oblique)) ))))
+  (insert (propertize "\n" 'face face)))
+
 (defun -alien-sel-render()
   "Renders the selection buffer. Requires that the list buffer is
 the current buffer. It erases current buffer, so watch out."
@@ -326,25 +344,31 @@ the current buffer. It erases current buffer, so watch out."
             (insert (propertize (format "    ... %d more\n" first-index) 'face 'alien-sel-light-face))
           (insert "\n"))
         
-        (dolist (o -alien-sel-options-filtered)
-          (and
-           (>= index first-index)
-           (<= index last-index)
-           (progn
-             (if (= index -alien-sel-index)
-                 (progn
-                   (setq selected-point (point))
-                   (unless -alien-sel-inline-frame
-                     (setq overlay-arrow-position (point-marker)))
-                   (setq face 'match))
-               (setq face nil))
-             (let* ((item (propertize (format " %s\n" o)  'face face)))
-               (-alien-sel-propertize-for-filter item -alien-sel-filter)
-               (insert
-                (if alien-sel-show-line-numbers
-                    (concat (propertize (format " %d" index) 'face face) item)
-                  item)))))
-          (incf index))
+        (let ((max-length 0))
+          (dolist (o -alien-sel-options-filtered)
+            (and
+             (>= index first-index)
+             (<= index last-index)
+             (setq max-length (max max-length (length o))))
+            (incf index))
+          (setq max-length (+ 7 max-length))
+          (setq index 0)
+          (dolist (o -alien-sel-options-filtered)
+            (and
+             (>= index first-index)
+             (<= index last-index)
+             (progn
+               (if (= index -alien-sel-index)
+                   (progn
+                     (setq selected-point (point))
+                     (unless -alien-sel-inline-frame
+                       (setq overlay-arrow-position (point-marker)))
+                     (setq face 'highlight))
+                 (setq face 'nil))
+               (-alien-sel-render-item o index face max-length)))
+            (incf index)))
+
+        
         (when (< last-index (1- (length -alien-sel-options-filtered)))
           (insert (propertize (format "    ... %d more\n"
                                       (- (1- (length -alien-sel-options-filtered)) last-index))
@@ -561,4 +585,32 @@ presented in the minibuffer."
   "Mode for the listing buffer on alien-sel"
   (define-key alien-sel-list-mode-map [(meta down)] 'alien-sel-back-to-minibuffer)
   (define-key alien-sel-list-mode-map [(control ?g)] 'alien-sel-back-to-minibuffer))
-  
+
+
+(defun alien-sel-test-1(popup)
+  (message "Your choice: %s"
+           (alien-sel "Pick a color"
+                      (--map
+                       (let ((rgb (color-name-to-rgb it)))
+                         (propertize it
+                                     'alien-sel-subtext
+                                     (color-rgb-to-hex
+                                      (first rgb)
+                                      (second rgb)
+                                      (third rgb) 2)))
+                       (defined-colors))
+                      popup)))
+
+(defun alien-sel-test()
+  (interactive)
+  (alien-sel-test-1 nil))
+
+(defun alien-sel-test-popup()
+  (interactive)
+  (alien-sel-test-1 t))
+
+(defun alien-sel-test-minimal-popup()
+  (interactive)
+  (alien-sel-test-1 'minimal))
+
+   

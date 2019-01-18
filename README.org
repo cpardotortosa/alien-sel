@@ -18,8 +18,9 @@ minibuffer is activated for filtering.
   [[screenshot_popup2.png]]
 
 - Push filters to narrow selection.
-- Text of the items can be propertized. The property =alien-sel-val= allows to specify a value to return different from
-  the value to show. Properties are preserved in the return value.
+- Text of the items can be propertized. Properties are preserved in the return value.
+- The property =alien-sel-val= allows to specify a value to return different from the value to show.
+- The property =alien-sel-subtext= allows to specify a secondary line of text to display besides the items.
 
 ** Goals:
 
