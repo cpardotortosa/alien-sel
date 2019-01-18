@@ -19,7 +19,7 @@ minibuffer is activated for filtering.
 
 - Push filters to narrow selection.
 - Text of the items can be propertized. The property =alien-sel-val= allows to specify a value to return different from
-  the value to show. Properties are preserved in the return nvalue.
+  the value to show. Properties are preserved in the return value.
 
 ** Goals:
 
