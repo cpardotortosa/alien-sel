@@ -189,13 +189,14 @@ does. Underline the matching characters."
                                 (right-fringe . 0)
                                 (minibuffer . nil)
                                 (width . 55)
-                                (height . 15)
                                 (alpha . 90))
-                              ;; Not much use for this right now.
+
                               (cond
-                              ((eq type 'minimal)
-                               '())
-                              ('()))))))
+                                ((eq type 'minimal)
+                                 '((height . 15)))
+                                ('((height . 17)))
+                                
+                                )))))
 
 ;; TODO: Should pass (minibuffer . [minibuffer-window])?
 ;; TODO: Probably pass (minibuffer-exit . t), instead of deleting the frame.
@@ -351,7 +352,10 @@ the current buffer. It erases current buffer, so watch out."
              (<= index last-index)
              (setq max-length (max max-length (length o))))
             (incf index))
+          ;; add some chars for spacing
           (setq max-length (+ 7 max-length))
+          ;; align to multiples of 7. Not related to any other 7.
+          (setq max-length (* 7 (ceiling (/ (float max-length) 7.0))))
           (setq index 0)
           (dolist (o -alien-sel-options-filtered)
             (and

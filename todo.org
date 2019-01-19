@@ -1,0 +1,11 @@
+* TODO Option to put subtext next to main text
+
+  Compatible with aligned subtext, like this:
+  
+  DeleteAllFiles /function/      Deletes all your files.
+  Quit /function/                Get up and leave. 
+  
+  
+  
+  
+  
