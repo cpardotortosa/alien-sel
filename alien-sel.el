@@ -588,6 +588,8 @@ presented in the minibuffer."
 
 (define-derived-mode alien-sel-list-mode special-mode "/A\\sel\\"
   "Mode for the listing buffer on alien-sel"
+  (define-key alien-sel-list-mode-map [wheel-up] 'alien-sel-page-up)
+  (define-key alien-sel-list-mode-map [wheel-down] 'alien-sel-page-down)
   (define-key alien-sel-list-mode-map [(meta down)] 'alien-sel-back-to-minibuffer)
   (define-key alien-sel-list-mode-map [(control ?g)] 'alien-sel-back-to-minibuffer))
 
