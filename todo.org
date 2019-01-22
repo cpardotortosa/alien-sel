@@ -5,7 +5,9 @@
   DeleteAllFiles /function/      Deletes all your files.
   Quit /function/                Get up and leave. 
   
-  
-  
-  
+* TODO Refine substring/flex matching
+  - If the first character of a flex match is also the first character of the item, show that item before items with
+    substring (not prefix) matching. The longer the match at the start, the higher the score.
+  - The same at the end of string. Useful when choosing filenames with paths.
+
   
