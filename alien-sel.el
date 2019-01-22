@@ -67,7 +67,8 @@ prompt, and the number of items (passing filter/total)."
   (if -alien-sel-with-header
       (let* ((l1 (-alien-sel-prompt -alien-sel-prompt t))
              (l2 (propertize (format
-                              " %d/%d items"
+                              " %d/%d/%d items"
+                              alien-sel-visible-item-max-count
                               (length -alien-sel-options-filtered)                          
                               (length -alien-sel-options)))))
         (setq header-line-format (format " %s       %s" l1 l2)))))
