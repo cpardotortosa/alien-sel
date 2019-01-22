@@ -409,7 +409,11 @@ the current buffer. It erases current buffer, so watch out."
          (-alien-sel-with-selection-buffer
           ,@body
           (-alien-sel-render)))
-       (define-key alien-sel-minibuffer-map ,key ',name))))
+       (let ((key-or-keys ,key))
+         (--each (if (listp key-or-keys)
+                     key-or-keys
+                   (list key-or-keys))
+           (define-key alien-sel-minibuffer-map it ',name))))))
      
 (setq alien-sel-minibuffer-map
       (let ((map (make-sparse-keymap)))
