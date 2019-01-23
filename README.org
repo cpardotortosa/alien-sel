@@ -57,7 +57,7 @@ minibuffer is activated for filtering.
 ** Next:
 - Documentation.
 - Commands to handle the popup frame: opacity, size, position.
-- When selecting the listing window, allow to make a choice from there too. Allow mouse wheel on the selection window.
+- When selecting the listing window, allow to make a choice from there too. 
 - Item categories, by prefix or explicit. Allow to filter out categories.
 - Tab completion, initial input.
   
