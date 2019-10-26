@@ -10,6 +10,7 @@
 (require 's)
 (require 'subr-x)
 (require 'cl)
+(require 'bookmark)
 
 (defgroup alien-sel-faces nil
   "Faces for alien-sel."
@@ -225,6 +226,7 @@ does. Underline the matching characters."
   "After creating the selection buffer, sets the global
 variables, displays the buffer and do some setup details."
   (alien-sel-list-mode)
+  (toggle-truncate-lines 1)
   (setq -alien-sel-filter-stack nil)
   (setq -alien-sel-options options)
   (setq -alien-sel-filter "")
@@ -309,7 +311,10 @@ filter type and the filter stack"
   (if alien-sel-show-line-numbers
       (insert (propertize (format " %d" index) 'face face)))
   (insert (propertize " " 'face face))
-  (let ((item (propertize o 'face face))
+  (let ((item
+         (if face
+             (propertize o 'face face)
+           o))
         (subtext (get-text-property 0 'alien-sel-subtext o)))
     (-alien-sel-propertize-for-filter item -alien-sel-filter)
     (insert item)
@@ -334,6 +339,7 @@ the current buffer. It erases current buffer, so watch out."
   (if -alien-sel-index
       (let* ((index 0)
              face selected-point
+             selected-detail-text
              (first-index (- -alien-sel-index alien-sel-visible-item-max-count-before-selected))
              last-index)
         (when (< first-index 0)
@@ -366,6 +372,7 @@ the current buffer. It erases current buffer, so watch out."
                (if (= index -alien-sel-index)
                    (progn
                      (setq selected-point (point))
+                     (setq selected-detail-text (get-text-property 0 'alien-sel-detail o))
                      (unless -alien-sel-inline-frame
                        (setq overlay-arrow-position (point-marker)))
                      (setq face 'highlight))
@@ -378,6 +385,14 @@ the current buffer. It erases current buffer, so watch out."
           (insert (propertize (format "    ... %d more\n"
                                       (- (1- (length -alien-sel-options-filtered)) last-index))
                               'face 'alien-sel-light-face)))
+        
+        (when selected-detail-text
+          (insert "\n -------------------------------------------\n")
+          (let ((start (point)))
+            (insert selected-detail-text)
+            (indent-region start (point) 4))
+          (insert "\n -------------------------------------------\n"))
+
         (goto-char selected-point))
     (insert "\n  ")
     (insert (propertize "[NO MATCH]" 'face 'isearch-fail))
@@ -497,7 +512,6 @@ filtered list the default list until filter is poped from stack."
                     (setq -alien-sel-degraded t)
                     (exit-minibuffer))
 
-                    
 (defun alien-sel-switch-to-listing-buffer()
   "Selects the listing window"
   (interactive)
@@ -511,6 +525,7 @@ filtered list the default list until filter is poped from stack."
            (-alien-sel-with-selection-buffer
             (nth -alien-sel-index -alien-sel-options-filtered))))
       (delete-minibuffer-contents)
+      (setq alien-sel-returned-item selected-text)
       (insert selected-text)
       (let ((val (get-text-property 0 'alien-sel-val selected-text)))
         (when val
@@ -605,10 +620,10 @@ presented in the minibuffer."
                        (let ((rgb (color-name-to-rgb it)))
                          (propertize it
                                      'alien-sel-subtext
-                                     (color-rgb-to-hex
-                                      (first rgb)
-                                      (second rgb)
-                                      (third rgb) 2)))
+                                     (color-rgb-to-hex (first rgb) (second rgb) (third rgb) 2)
+                                     'alien-sel-detail
+                                     (propertize "[                 ]"
+                                                 'face `(:background ,it :foreground ,it))))
                        (defined-colors))
                       popup)))
 
@@ -623,5 +638,18 @@ presented in the minibuffer."
 (defun alien-sel-test-minimal-popup()
   (interactive)
   (alien-sel-test-1 'minimal))
-
    
+(defun alien-sel-bookmark()
+    "Pick a bookmark with alien-sel"
+    (interactive)
+    (bookmark-maybe-load-default-file)
+    (bookmark-jump
+     (bookmark-get-bookmark
+      (alien-sel
+       "Bookmark"
+       (--map
+        (propertize
+         (bookmark-name-from-full-record it)
+         'alien-sel-subtext (bookmark-get-filename it))
+        bookmark-alist))))
+)
