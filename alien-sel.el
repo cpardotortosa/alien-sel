@@ -527,6 +527,12 @@ filtered list the default list until filter is poped from stack."
             (nth -alien-sel-index -alien-sel-options-filtered))))
       (delete-minibuffer-contents)
       (setq alien-sel-returned-item selected-text)
+      (remove-text-properties 0 (length selected-text)
+                              '(alien-sel-score nil)
+                              selected-text)
+      (setq alien-sel-returned-index (--find-index
+                                      (equal-including-properties selected-text it)
+                                      -alien-sel-options))
       (insert selected-text)
       (let ((val (get-text-property 0 'alien-sel-val selected-text)))
         (when val
