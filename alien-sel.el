@@ -226,7 +226,8 @@ does. Underline the matching characters."
   "After creating the selection buffer, sets the global
 variables, displays the buffer and do some setup details."
   (alien-sel-list-mode)
-  (toggle-truncate-lines 1)
+  (let ((inhibit-message t))
+    (toggle-truncate-lines 1))
   (setq -alien-sel-filter-stack nil)
   (setq -alien-sel-options options)
   (setq -alien-sel-filter "")

@@ -13,4 +13,6 @@
     substring (not prefix) matching. The longer the match at the start, the higher the score.
   - The same at the end of string. Useful when choosing filenames with paths.
 
+* TODO Searching in the subtext
+  Maybe on the detail text too? probably not.
   
