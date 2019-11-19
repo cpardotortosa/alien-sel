@@ -528,11 +528,12 @@ filtered list the default list until filter is poped from stack."
       (delete-minibuffer-contents)
       (setq alien-sel-returned-item selected-text)
       (remove-text-properties 0 (length selected-text)
-                              '(alien-sel-score nil)
+                              '(alien-sel-score nil face nil)
                               selected-text)
-      (setq alien-sel-returned-index (--find-index
-                                      (equal-including-properties selected-text it)
-                                      -alien-sel-options))
+      (setq alien-sel-returned-index
+            (--find-index
+             (equal-including-properties selected-text it)
+             -alien-sel-options))
       (insert selected-text)
       (let ((val (get-text-property 0 'alien-sel-val selected-text)))
         (when val
@@ -658,5 +659,21 @@ presented in the minibuffer."
         (propertize
          (bookmark-name-from-full-record it)
          'alien-sel-subtext (bookmark-get-filename it))
-        bookmark-alist))))
-)
+        bookmark-alist)))))
+
+(defun alien-sel-font()
+  "Pick a font with alien sel"
+  (interactive)
+  (alien-sel
+   "Choose font"
+   (--map
+    (propertize it 'face `(:family ,it :height 2.0))
+    (-sort
+     'string<
+     (-distinct
+      (--map
+       (format "%s"
+               (symbol-name (font-get it :family)))
+       (list-fonts (font-spec))))))))
+
+  
