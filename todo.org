@@ -16,3 +16,13 @@
 * TODO Searching in the subtext
   Maybe on the detail text too? probably not.
   
+* TODO Allow caller to set arbitrary keys to arbitrary commands during selection. Show what those keys are.
+
+* TODO The variable alien-sel-returned-index
+  is computed by searching for the selected item (including properties) inside the list. This is bad beacuse we add
+  properties to items along the way.
+  The solution is to add a propertiy with the index at the start.
+  
+  
+
+  
